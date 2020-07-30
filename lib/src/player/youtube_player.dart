@@ -13,6 +13,7 @@ import '../utils/youtube_player_controller.dart';
 import '../utils/youtube_player_flags.dart';
 import '../widgets/widgets.dart';
 import 'raw_youtube_player.dart';
+import 'package:transparent_image/transparent_image.dart';
 
 /// A widget to play or stream YouTube videos using the official [YouTube IFrame Player API](https://developers.google.com/youtube/iframe_api_reference).
 ///
@@ -233,15 +234,15 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
   Widget build(BuildContext context) {
     return Material(
       elevation: 0,
-      color: Colors.black,
+      color: const Color(0xFFebecec),
       child: InheritedYoutubePlayer(
         controller: controller,
         child: Container(
-          color: Colors.black,
+          color: const Color(0xFFebecec),
           width: widget.width ?? MediaQuery.of(context).size.width,
           child: _buildPlayer(
             errorWidget: Container(
-              color: Colors.black87,
+              color: const Color(0xFFebecec),
               padding:
                   const EdgeInsets.symmetric(horizontal: 40.0, vertical: 20.0),
               child: Column(
@@ -295,6 +296,12 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
         fit: StackFit.expand,
         overflow: Overflow.visible,
         children: [
+          if (controller == null || controller.flags == null || !controller.flags.hideThumbnail)
+            AnimatedOpacity(
+              opacity: (controller == null || controller.value == null || !controller.value.isPlaying) ? 1 : 0,
+              duration: const Duration(milliseconds: 300),
+              child: widget.thumbnail ?? _thumbnail,
+            ),
           Transform.scale(
             scale: controller.value.isFullScreen
                 ? (1 / _aspectRatio * MediaQuery.of(context).size.width) /
@@ -312,12 +319,6 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
               },
             ),
           ),
-          if (!controller.flags.hideThumbnail)
-            AnimatedOpacity(
-              opacity: controller.value.isPlaying ? 0 : 1,
-              duration: const Duration(milliseconds: 300),
-              child: widget.thumbnail ?? _thumbnail,
-            ),
           if (!controller.value.isFullScreen &&
               !controller.flags.hideControls &&
               controller.value.position > const Duration(milliseconds: 100) &&
@@ -405,26 +406,15 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
     );
   }
 
-  Widget get _thumbnail => Image.network(
-        YoutubePlayer.getThumbnail(
+  Widget get _thumbnail => FadeInImage.memoryNetwork(
+        placeholder: kTransparentImage,
+        image: YoutubePlayer.getThumbnail(
           videoId: controller.metadata.videoId.isEmpty
               ? controller.initialVideoId
               : controller.metadata.videoId,
         ),
+        fadeOutDuration: const Duration(milliseconds: 700),
+        fadeInDuration: const Duration(milliseconds: 1500),
         fit: BoxFit.cover,
-        loadingBuilder: (_, child, progress) =>
-            progress == null ? child : Container(color: Colors.black),
-        errorBuilder: (context, _, __) => Image.network(
-          YoutubePlayer.getThumbnail(
-            videoId: controller.metadata.videoId.isEmpty
-                ? controller.initialVideoId
-                : controller.metadata.videoId,
-            webp: false,
-          ),
-          fit: BoxFit.cover,
-          loadingBuilder: (_, child, progress) =>
-              progress == null ? child : Container(color: Colors.black),
-          errorBuilder: (context, _, __) => Container(),
-        ),
       );
 }
