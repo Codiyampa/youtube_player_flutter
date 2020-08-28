@@ -102,6 +102,11 @@ class YoutubePlayer extends StatefulWidget {
   /// {@endtemplate}
   final Color liveUIColor;
 
+  /// {@template youtube_player_flutter.backgroundColor}
+  /// Overrides color of Live UI when enabled.
+  /// {@endtemplate}
+  final Color backgroundColor;
+
   /// {@template youtube_player_flutter.topActions}
   /// Adds custom top bar widgets.
   /// {@endtemplate}
@@ -146,6 +151,7 @@ class YoutubePlayer extends StatefulWidget {
     this.onReady,
     this.onEnded,
     this.liveUIColor = Colors.red,
+    this.backgroundColor = const Color(0xFFebecec),
     this.topActions,
     this.bottomActions,
     this.actionsPadding = const EdgeInsets.all(8.0),
@@ -234,15 +240,15 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
   Widget build(BuildContext context) {
     return Material(
       elevation: 0,
-      color: const Color(0xFFebecec),
+      color: widget.backgroundColor,
       child: InheritedYoutubePlayer(
         controller: controller,
         child: Container(
-          color: const Color(0xFFebecec),
+          color: widget.backgroundColor,
           width: widget.width ?? MediaQuery.of(context).size.width,
           child: _buildPlayer(
             errorWidget: Container(
-              color: const Color(0xFFebecec),
+              color: widget.backgroundColor,
               padding:
                   const EdgeInsets.symmetric(horizontal: 40.0, vertical: 20.0),
               child: Column(
