@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:io';
 import 'package:flutter/material.dart';
 
 import '../enums/player_state.dart';
@@ -70,7 +71,7 @@ class _PlayPauseButtonState extends State<PlayPauseButton>
   @override
   Widget build(BuildContext context) {
     final _playerState = _controller.value.playerState;
-    if ((!_controller.flags.autoPlay && _controller.value.isReady) ||
+    if ((!_controller.flags.autoPlay && !_controller.value.isStarted) ||
         _playerState == PlayerState.playing ||
         _playerState == PlayerState.paused) {
       return Visibility(
@@ -95,13 +96,13 @@ class _PlayPauseButtonState extends State<PlayPauseButton>
       );
     }
     if (_controller.value.hasError) return const SizedBox();
-    return widget.bufferIndicator ??
+    return widget.bufferIndicator ?? Platform.isAndroid ?
         Container(
-          width: 70.0,
-          height: 70.0,
+          width: 30.0,
+          height: 30.0,
           child: const CircularProgressIndicator(
             valueColor: AlwaysStoppedAnimation(Colors.white),
           ),
-        );
+        ) : SizedBox();
   }
 }

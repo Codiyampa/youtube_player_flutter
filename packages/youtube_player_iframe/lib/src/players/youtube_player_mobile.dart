@@ -99,7 +99,7 @@ class _MobileYoutubePlayerState extends State<RawYoutubePlayer>
         ios: IOSInAppWebViewOptions(
           allowsInlineMediaPlayback: true,
           allowsAirPlayForMediaPlayback: true,
-          allowsPictureInPictureMediaPlayback: true,
+          allowsPictureInPictureMediaPlayback: false,
         ),
         android: AndroidInAppWebViewOptions(useWideViewPort: false),
       ),

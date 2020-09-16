@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
@@ -22,6 +23,7 @@ class YoutubePlayerValue {
     this.hasPlayed = false,
     this.position = const Duration(),
     this.buffered = 0.0,
+    this.isStarted = false,
     this.isPlaying = false,
     this.isFullScreen = false,
     this.volume = 100,
@@ -48,6 +50,9 @@ class YoutubePlayerValue {
 
   /// The position up to which the video is buffered.i
   final double buffered;
+
+  /// Reports true if video is playing.
+  final bool isStarted;
 
   /// Reports true if video is playing.
   final bool isPlaying;
@@ -93,6 +98,7 @@ class YoutubePlayerValue {
     bool hasPlayed,
     Duration position,
     double buffered,
+    bool isStarted,
     bool isPlaying,
     bool isFullScreen,
     double volume,
@@ -110,6 +116,7 @@ class YoutubePlayerValue {
       hasPlayed: hasPlayed ?? this.hasPlayed,
       position: position ?? this.position,
       buffered: buffered ?? this.buffered,
+      isStarted: isStarted ?? this.isStarted,
       isPlaying: isPlaying ?? this.isPlaying,
       isFullScreen: isFullScreen ?? this.isFullScreen,
       volume: volume ?? this.volume,
@@ -131,6 +138,7 @@ class YoutubePlayerValue {
         'isControlsVisible: $isControlsVisible, '
         'position: ${position.inSeconds} sec. , '
         'buffered: $buffered, '
+        'isStarted: $isStarted, '
         'isPlaying: $isPlaying, '
         'volume: $volume, '
         'playerState: $playerState, '
@@ -181,7 +189,26 @@ class YoutubePlayerController extends ValueNotifier<YoutubePlayerValue> {
   void updateValue(YoutubePlayerValue newValue) => value = newValue;
 
   /// Plays the video.
-  void play() => _callMethod('play()');
+  void play() async {
+    updateValue(value.copyWith(isStarted: true));
+    if (!value.isReady) {
+      await waitWhile(() => value.isReady);
+    }
+    _callMethod('play()');
+  }
+
+  Future waitWhile(bool test(), [Duration pollInterval = const Duration(milliseconds: 100)]) {
+    var completer = Completer();
+    check() {
+      if (test()) {
+        completer.complete();
+      } else {
+        Timer(pollInterval, check);
+      }
+    }
+    check();
+    return completer.future;
+  }
 
   /// Pauses the video.
   void pause() => _callMethod('pause()');

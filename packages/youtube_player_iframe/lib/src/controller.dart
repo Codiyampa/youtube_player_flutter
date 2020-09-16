@@ -241,6 +241,7 @@ class YoutubePlayerController extends Stream<YoutubePlayerValue>
   ///
   /// Default allowSeekAhead = true
   void seekTo(Duration position, {bool allowSeekAhead = true}) {
+    pause();
     invokeJavascript('seekTo(${position.inSeconds},$allowSeekAhead)');
     play();
     add(_value.copyWith(position: position));
