@@ -302,31 +302,32 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
         fit: StackFit.expand,
         overflow: Overflow.visible,
         children: [
+          if (controller.value.isStarted)
+            Transform.scale(
+              scale: controller.value.isFullScreen
+                  ? (1 / _aspectRatio * MediaQuery.of(context).size.width) /
+                  MediaQuery.of(context).size.height
+                  : 1,
+              child: RawYoutubePlayer(
+                key: widget.key,
+                onEnded: (YoutubeMetaData metaData) {
+                  if (controller.flags.loop) {
+                    controller.load(controller.metadata.videoId,
+                        startAt: controller.flags.startAt,
+                        endAt: controller.flags.endAt);
+                  }
+                  if (widget.onEnded != null) {
+                    widget.onEnded(metaData);
+                  }
+                },
+              ),
+            ),
           if (controller == null || controller.flags == null || !controller.flags.hideThumbnail)
             AnimatedOpacity(
               opacity: (controller == null || controller.value == null || !controller.value.isPlaying) ? 1 : 0,
               duration: const Duration(milliseconds: 300),
               child: widget.thumbnail ?? _thumbnail,
             ),
-          Transform.scale(
-            scale: controller.value.isFullScreen
-                ? (1 / _aspectRatio * MediaQuery.of(context).size.width) /
-                    MediaQuery.of(context).size.height
-                : 1,
-            child: RawYoutubePlayer(
-              key: widget.key,
-              onEnded: (YoutubeMetaData metaData) {
-                if (controller.flags.loop) {
-                  controller.load(controller.metadata.videoId,
-                      startAt: controller.flags.startAt,
-                      endAt: controller.flags.endAt);
-                }
-                if (widget.onEnded != null) {
-                  widget.onEnded(metaData);
-                }
-              },
-            ),
-          ),
           if (!controller.value.isFullScreen &&
               !controller.flags.hideControls &&
               controller.value.position > const Duration(milliseconds: 100) &&
