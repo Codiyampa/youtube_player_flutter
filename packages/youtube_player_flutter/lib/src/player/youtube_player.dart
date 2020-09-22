@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 
+import '../../youtube_player_flutter.dart';
 import '../enums/thumbnail_quality.dart';
 import '../utils/errors.dart';
 import '../utils/youtube_meta_data.dart';
@@ -306,7 +307,7 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
             Transform.scale(
               scale: controller.value.isFullScreen
                   ? (1 / _aspectRatio * MediaQuery.of(context).size.width) /
-                  MediaQuery.of(context).size.height
+                      MediaQuery.of(context).size.height
                   : 1,
               child: RawYoutubePlayer(
                 key: widget.key,
@@ -322,10 +323,21 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
                 },
               ),
             ),
-          if (controller == null || controller.flags == null || !controller.flags.hideThumbnail)
+          if (controller == null ||
+              controller.flags == null ||
+              !controller.flags.hideThumbnail)
             AnimatedOpacity(
-              opacity: (controller == null || controller.value == null || !controller.value.isPlaying) ? 1 : 0,
-              duration: const Duration(milliseconds: 300),
+              opacity: (controller == null ||
+                      controller.value == null ||
+                      !controller.value.isPlaying ||
+                      controller.value.playerState == PlayerState.ended)
+                  ? 1
+                  : 0,
+              duration: Duration(
+                  milliseconds:
+                      controller.value.playerState == PlayerState.ended
+                          ? 0
+                          : 300),
               child: widget.thumbnail ?? _thumbnail,
             ),
           if (!controller.value.isFullScreen &&
@@ -392,7 +404,8 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
               right: 0,
               child: AnimatedOpacity(
                 opacity: !controller.flags.hideControls &&
-                    !controller.value.isStarted
+                        (!controller.value.isStarted ||
+                            controller.value.playerState == PlayerState.ended)
                     ? 1
                     : 0,
                 duration: const Duration(milliseconds: 300),
