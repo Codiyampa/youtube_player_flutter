@@ -392,7 +392,7 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
               right: 0,
               child: AnimatedOpacity(
                 opacity: !controller.flags.hideControls &&
-                        controller.value.isControlsVisible
+                    !controller.value.isStarted
                     ? 1
                     : 0,
                 duration: const Duration(milliseconds: 300),
