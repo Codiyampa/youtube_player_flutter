@@ -329,7 +329,9 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
             AnimatedOpacity(
               opacity: (controller == null ||
                       controller.value == null ||
-                      !controller.value.isPlaying ||
+                      (!controller.value.isPlaying &&
+                      ((!controller.value.isReadyWithDelay && !controller.value.hasPlayed) ||
+                          controller.value.hasPlayed)) ||
                       controller.value.playerState == PlayerState.ended)
                   ? 1
                   : 0,

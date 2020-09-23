@@ -24,6 +24,7 @@ class YoutubePlayerValue {
     this.position = const Duration(),
     this.buffered = 0.0,
     this.isStarted = false,
+    this.isReadyWithDelay = false,
     this.isPlaying = false,
     this.isFullScreen = false,
     this.volume = 100,
@@ -53,6 +54,9 @@ class YoutubePlayerValue {
 
   /// Reports true if video is playing.
   final bool isStarted;
+
+  /// Reports true 3 seconds after start playing command.
+  final bool isReadyWithDelay;
 
   /// Reports true if video is playing.
   final bool isPlaying;
@@ -99,6 +103,7 @@ class YoutubePlayerValue {
     Duration position,
     double buffered,
     bool isStarted,
+    bool isReadyWithDelay,
     bool isPlaying,
     bool isFullScreen,
     double volume,
@@ -117,6 +122,7 @@ class YoutubePlayerValue {
       position: position ?? this.position,
       buffered: buffered ?? this.buffered,
       isStarted: isStarted ?? this.isStarted,
+      isReadyWithDelay: isReadyWithDelay ?? this.isReadyWithDelay,
       isPlaying: isPlaying ?? this.isPlaying,
       isFullScreen: isFullScreen ?? this.isFullScreen,
       volume: volume ?? this.volume,
@@ -139,6 +145,7 @@ class YoutubePlayerValue {
         'position: ${position.inSeconds} sec. , '
         'buffered: $buffered, '
         'isStarted: $isStarted, '
+        'isReadyWithDelay: $isReadyWithDelay, '
         'isPlaying: $isPlaying, '
         'volume: $volume, '
         'playerState: $playerState, '
@@ -195,6 +202,10 @@ class YoutubePlayerController extends ValueNotifier<YoutubePlayerValue> {
       await waitWhile(() => value.isReady);
     }
     _callMethod('play()');
+
+    if (!value.hasPlayed) {
+      Timer(const Duration(seconds: 3), () => updateValue(value.copyWith(isReadyWithDelay: true)));
+    }
   }
 
   Future waitWhile(bool test(), [Duration pollInterval = const Duration(milliseconds: 100)]) {

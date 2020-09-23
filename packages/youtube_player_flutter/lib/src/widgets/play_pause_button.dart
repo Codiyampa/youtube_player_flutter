@@ -96,7 +96,9 @@ class _PlayPauseButtonState extends State<PlayPauseButton>
       );
     }
     if (_controller.value.hasError) return const SizedBox();
-    return widget.bufferIndicator ?? ((Platform.isAndroid || !_controller.value.hasPlayed) && _controller.value.playerState != PlayerState.ended) ?
+    return widget.bufferIndicator ?? ((Platform.isAndroid || !_controller.value.hasPlayed) &&
+        ((!_controller.value.isReadyWithDelay && !_controller.value.hasPlayed) ||
+                _controller.value.hasPlayed) && _controller.value.playerState != PlayerState.ended) ?
         Container(
           width: 30.0,
           height: 30.0,
